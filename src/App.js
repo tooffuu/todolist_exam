@@ -27,9 +27,18 @@ function App() {
           value={todo}
           placeholder="할 일을 적어주세요"
         />
-        <button> 등록 </button>
+        <button
+          style={{
+            width: "80px",
+            backgroundColor: "gold",
+            borderRadius: "10px",
+            marginLeft: "6px",
+          }}
+        >
+          등록
+        </button>
       </form>
-
+      <hr></hr>
       <button
         onClick={() => {
           console.log(todos);
@@ -37,6 +46,12 @@ function App() {
       >
         check
       </button>
+      <hr />
+      <ul>
+        {todos.map((todo, index) => (
+          <li key={index}>{todo}</li>
+        ))}
+      </ul>
     </div>
   );
 }
