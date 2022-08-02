@@ -6,6 +6,11 @@ function App() {
   const onChange = (e) => {
     setTodo(e.target.value);
   };
+  const reset = () => {
+    if (window.confirm("삭제하시겠습니까?")) {
+      setTodos([]);
+    }
+  };
   const onSubmit = (e) => {
     e.preventDefault();
     if (todo === "") {
@@ -19,7 +24,7 @@ function App() {
   };
   return (
     <div>
-      <h1>*할 일*</h1>
+      <h1>*할 일 😀*</h1>
       <form onSubmit={onSubmit}>
         <input
           type="text"
@@ -45,6 +50,14 @@ function App() {
         }}
       >
         check
+      </button>
+      <button
+        onClick={reset}
+        style={{
+          marginLeft: "10px",
+        }}
+      >
+        delete
       </button>
       <hr />
       <ul>
