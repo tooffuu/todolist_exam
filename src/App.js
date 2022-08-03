@@ -1,71 +1,64 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import TodoList from "./components/TodoList";
+import TodoEdit from "./components/TodoEdit";
+import TodoTemplate from "./components/TodoTemplate";
+import TodoInsert from "./components/TodoInsert";
 
 function App() {
   const [todos, setTodos] = useState([]);
-  const [todo, setTodo] = useState("");
-  const onChange = (e) => {
-    setTodo(e.target.value);
-  };
-  const reset = () => {
-    if (window.confirm("삭제하시겠습니까?")) {
-      setTodos([]);
-    }
-  };
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (todo === "") {
-      alert("1글자 이상 입력해주세요");
-      return;
-    }
+  const [insertToggle, setInsertToggle] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState(null);
+  const nextId = useRef(1);
 
-    setTodos((currentArray) => [todo, ...currentArray]);
-    setTodo("");
-    alert("등록됨");
+  const onInsert = (text) => {
+    const todo = {
+      id: nextId.current,
+      text: text,
+      checked: false,
+    };
+    setTodos((todos) => todos.concat(todo));
+    nextId.current++;
   };
+  const onRemove = (id) => {
+    setTodos((todos) => todos.filter((todo) => todo.id !== id));
+  };
+  const onInsertToggle = () => {
+    setInsertToggle((prev) => !prev);
+  };
+
+  const onToggle = (id) => {
+    setTodos((todos) =>
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, checked: !todo.checked } : todo
+      )
+    );
+  };
+
+  const onUpdate = (id, text) => {
+    setTodos((todos) =>
+      todos.map((todo) => (todo.id === id ? { ...todo, text } : todo))
+    );
+    onInsertToggle();
+  };
+
   return (
-    <div>
-      <h1>*할 일 😀*</h1>
-      <form onSubmit={onSubmit}>
-        <input
-          type="text"
-          onChange={onChange}
-          value={todo}
-          placeholder="할 일을 적어주세요"
+    <TodoTemplate>
+      <TodoInsert onInsert={onInsert} />
+      <TodoList
+        todos={todos}
+        onRemove={onRemove}
+        onToggle={onToggle}
+        onInsertToggle={onInsertToggle}
+        setSelectedTodo={setSelectedTodo}
+      />
+      {insertToggle && (
+        <TodoEdit
+          onInsertToggle={onInsertToggle}
+          selectedTodo={selectedTodo}
+          onUpdate={onUpdate}
         />
-        <button
-          style={{
-            width: "80px",
-            backgroundColor: "gold",
-            borderRadius: "10px",
-            marginLeft: "6px",
-          }}
-        >
-          등록
-        </button>
-      </form>
-      <hr></hr>
-      <button
-        onClick={() => {
-          console.log(todos);
-        }}
-      >
-        check
-      </button>
-      <button
-        onClick={reset}
-        style={{
-          marginLeft: "10px",
-        }}
-      >
-        delete
-      </button>
-      <hr />
-      <ul>
-        {todos.map((todo, index) => (
-          <li key={index}>{todo}</li>
-        ))}
-      </ul>
-    </div>
+      )}
+    </TodoTemplate>
   );
 }
 
