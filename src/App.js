@@ -1,14 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TodoList from "./components/TodoList";
 import TodoEdit from "./components/TodoEdit";
 import TodoTemplate from "./components/TodoTemplate";
 import TodoInsert from "./components/TodoInsert";
+import axios from "axios";
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [insertToggle, setInsertToggle] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(null);
-  const nextId = useRef(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const nextId = useRef(4);
 
   const onInsert = (text) => {
     const todo = {
@@ -40,6 +43,31 @@ function App() {
     );
     onInsertToggle();
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const data = await axios({
+          url: "http://localhost:4000/todos",
+          method: "GET",
+        });
+        console.log(data.data);
+        setTodos(data.data);
+        setIsLoading(false);
+      } catch (e) {
+        setError(e);
+      }
+    };
+    getData();
+  }, []);
+
+  if (error) {
+    return <> 에러 : {error.message} </>;
+  }
+
+  if (isLoading) {
+    return <> Loading .... </>;
+  }
 
   return (
     <TodoTemplate>
