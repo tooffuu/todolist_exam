@@ -13,36 +13,79 @@ function App() {
   const [error, setError] = useState(null);
   const nextId = useRef(4);
 
-  const onInsert = (text) => {
-    const todo = {
-      id: nextId.current,
-      text: text,
-      checked: false,
-    };
-    setTodos((todos) => todos.concat(todo));
-    nextId.current++;
+  const onInsert = async (text) => {
+    try {
+      const data = await axios({
+        url: `http://localhost:4000/todos`,
+        method: "POST",
+        data: { text },
+      });
+      setTodos((todos) => [...todos, data.data]);
+    } catch (e) {
+      setError(e);
+    }
   };
-  const onRemove = (id) => {
-    setTodos((todos) => todos.filter((todo) => todo.id !== id));
+
+  // const onInsert = (text) => {
+  //   const todo = {
+  //     id: nextId.current,
+  //     text: text,
+  //     checked: false,
+  //   };
+  //   setTodos((todos) => todos.concat(todo));
+  //   nextId.current++;
+  // };
+
+  const onRemove = async (id) => {
+    try {
+      await axios({
+        url: `http://localhost:4000/todos/${id}`,
+        method: "DELETE",
+      });
+      setTodos((todos) => todos.filter((todo) => todo.id !== id));
+    } catch (e) {
+      setError(e);
+    }
   };
+
   const onInsertToggle = () => {
     setInsertToggle((prev) => !prev);
   };
 
-  const onToggle = (id) => {
-    setTodos((todos) =>
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, checked: !todo.checked } : todo
-      )
-    );
+  const onToggle = async (id) => {
+    try {
+      const data = await axios({
+        url: `http://localhost:4000/todos/${id}/check`,
+        method: "PATCH",
+      });
+      setTodos(data.data);
+    } catch (e) {
+      setError(e);
+    }
   };
 
-  const onUpdate = (id, text) => {
-    setTodos((todos) =>
-      todos.map((todo) => (todo.id === id ? { ...todo, text } : todo))
-    );
-    onInsertToggle();
+  const onUpdate = async (id, text) => {
+    try {
+      await axios({
+        url: `http://localhost:4000/todos/${id}`,
+        method: "PATCH",
+        data: { text, perform_date: "2022-08-08 12:00:00" },
+      });
+      setTodos((todos) =>
+        todos.map((todo) => (todo.id === id ? { ...todo, text } : todo))
+      );
+      onInsertToggle();
+    } catch (e) {
+      setError(e);
+    }
   };
+
+  // const onUpdate = (id, text) => {
+  //   setTodos((todos) =>
+  //     todos.map((todo) => (todo.id === id ? { ...todo, text } : todo))
+  //   );
+  //   onInsertToggle();
+  // };
 
   useEffect(() => {
     const getData = async () => {
@@ -54,6 +97,12 @@ function App() {
         console.log(data.data);
         setTodos(data.data);
         setIsLoading(false);
+        // throw new Error("조회중 에러 발생!!");
+        // await new Promise((resolve, reject) => {
+        //  setTimeout(() => {
+        //      resolve()
+        //  }. 3000)
+        // })
       } catch (e) {
         setError(e);
       }
@@ -80,11 +129,7 @@ function App() {
         setSelectedTodo={setSelectedTodo}
       />
       {insertToggle && (
-        <TodoEdit
-          onInsertToggle={onInsertToggle}
-          selectedTodo={selectedTodo}
-          onUpdate={onUpdate}
-        />
+        <TodoEdit selectedTodo={selectedTodo} onUpdate={onUpdate} />
       )}
     </TodoTemplate>
   );
