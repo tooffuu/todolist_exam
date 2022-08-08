@@ -16,8 +16,9 @@ const TodoListItem = ({
   setSelectedTodo,
 }) => {
   const { id, text, checked } = todo;
+
   return (
-    <li className="TodoListItem">
+    <li className="TodoListItem" draggable="true">
       <div
         className={cn("checkbox", { checked: checked })}
         onClick={() => {
